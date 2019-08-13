@@ -142,6 +142,22 @@ func PostOrderSlice(node *BinarytreeNode) (result []int) {
 	return result
 }
 
+func GetLevel(node *BinarytreeNode) (result int) {
+	if node == nil {
+		return 0
+	}
+
+	level := Max(GetLevel(node.Left), GetLevel(node.Right)) + 1
+	return level
+}
+
+func Max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
+}
+
 func main() {
 	fmt.Println("Welcome to the playground!")
 
@@ -157,6 +173,8 @@ func main() {
 	InsertNode(rootNode, 9)
 	InsertNode(rootNode, 16)
 	InsertNode(rootNode, 19)
+
+	fmt.Println("Levels of tree: ", GetLevel(rootNode))
 
 	fmt.Println("Pre order print: ", PreOrderSlice(rootNode))
 	fmt.Println("In order print: ", InOrderSlice(rootNode))
@@ -179,15 +197,3 @@ func main() {
 	fmt.Println("In order print: ", InOrderSlice(rootNode))
 	fmt.Println("Post order print: ", PostOrderSlice(rootNode))
 }
-
-// Welcome to the playground!
-// Pre order print:  [10 6 4 5 8 7 9 15 12 18 16 19]
-// In order print:  [4 5 6 7 8 9 10 12 15 16 18 19]
-// Post order print:  [5 4 7 9 8 6 12 16 19 18 15 10]
-// Search node result:  5 ,parent node value 4
-// Search node result:  18 ,parent node value 15
-// Search node result:  18 ,parent node value 12
-// Search node result:  18 ,parent node value 12
-// Pre order print:  [10 6 4 5 8 7 9 12 18 16 15 19]
-// In order print:  [4 5 6 7 8 9 10 12 15 16 18 19]
-// Post order print:  [5 4 7 9 8 6 15 16 19 18 12 10]
