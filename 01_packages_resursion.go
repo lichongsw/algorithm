@@ -15,21 +15,22 @@ var maxValue int = 0
 var maxValueWeight int = 0
 var resultPackages = []int{}
 
+func updatePackage(packages []int, currentWeight int) {
+	maxValueWeight = currentWeight
+	resultPackages = resultPackages[:0]
+	resultPackages = append(resultPackages, packages...)
+	fmt.Println("Current packages:", packages, "with value:", maxValue)
+}
+
 func Package(packages []int, count int, currentWeight int, currentValue int) {
 	if currentWeight == weightLimitation || count == countLimitation {
 		if currentValue == maxValue {
 			if currentWeight < maxValueWeight {
-				maxValueWeight = currentWeight
-				resultPackages = nil
-				resultPackages = append(resultPackages, packages...)
-				fmt.Println("Current packages:", packages, "with value:", maxValue)
+				updatePackage(packages, currentWeight)
 			}
 		} else if currentValue > maxValue {
 			maxValue = currentValue
-			maxValueWeight = currentWeight
-			resultPackages = nil
-			resultPackages = append(resultPackages, packages...)
-			fmt.Println("Current packages:", packages, "with value:", maxValue)
+			updatePackage(packages, currentWeight)
 		}
 
 		return
