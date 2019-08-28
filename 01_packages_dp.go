@@ -45,6 +45,8 @@ func Package() {
 				if v > states[i][j+weights[i]].value {
 					states[i][j+weights[i]].value = v
 					states[i][j+weights[i]].items = append(states[i-1][j].items, i)
+					states[i-1][j].items = nil
+					fmt.Println("Current packages:", states[i][j+weights[i]].items, "with value:", v)
 				}
 			}
 		}
