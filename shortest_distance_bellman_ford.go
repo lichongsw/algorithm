@@ -10,15 +10,6 @@ type Node struct {
 	weight      int
 }
 
-func GetMin(first int, second int) int {
-	result := first
-	if result > second {
-		result = second
-	}
-
-	return result
-}
-
 func BellmanFord(relation map[string][]Node, startName string, searchName string) (int, []string) {
 	searchQueue := make([]string, 0)
 	searchQueue = append(searchQueue, startName)
