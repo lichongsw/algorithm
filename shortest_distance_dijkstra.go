@@ -63,7 +63,6 @@ func GetMin(first int, second int) int {
 }
 
 type Node struct {
-	preNodeName string
 	name        string
 	weight      int
 }
@@ -119,20 +118,19 @@ func Dijkstra(relation map[string][]Node, startName string, searchName string) (
 func main() {
 	fmt.Println("Welcome to the playground!")
 	releationMap := make(map[string][]Node)
-	releationMap["name A"] = []Node{Node{"name A", "name B", 5}, Node{"name A", "name E", 20}}
-	releationMap["name B"] = []Node{Node{"name B", "name C", 10}}
-	releationMap["name C"] = []Node{Node{"name C", "name D", 20}, Node{"name C", "name E", 4}}
-	releationMap["name D"] = []Node{Node{"name D", "name F", 5}}
-	releationMap["name E"] = []Node{Node{"name E", "name D", 10}}
+	releationMap["name A"] = []Node{Node{"name B", 5}, Node{"name E", 20}}
+	releationMap["name B"] = []Node{Node{"name C", 10}}
+	releationMap["name C"] = []Node{Node{"name D", 20}, Node{"name E", 4}}
+	releationMap["name D"] = []Node{Node{"name F", 5}}
+	releationMap["name E"] = []Node{Node{"name D", 10}}
 	releationMap["name F"] = nil
 
 	distance, path := Dijkstra(releationMap, "name A", "name D")
 	fmt.Println("Dijkstra search name D start from name A:", distance, "with path:", path)
 	
-	releationMap["name C"] = []Node{Node{"name C", "name D", 20}, Node{"name C", "name E", 6}}
+	releationMap["name C"] = []Node{Node{"name D", 20}, Node{"name E", 6}}
 	distance, path = Dijkstra(releationMap, "name A", "name D")
 	fmt.Println("Dijkstra search name D start from name A:", distance, "with path:", path)
-	
 }
 
 // Welcome to the playground!
