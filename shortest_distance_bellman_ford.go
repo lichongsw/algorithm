@@ -19,7 +19,7 @@ func GetMin(first int, second int) int {
 	return result
 }
 
-func Dijkstra(relation map[string][]Node, startName string, searchName string) (int, []string) {
+func BellmanFord(relation map[string][]Node, startName string, searchName string) (int, []string) {
 	searchQueue := make([]string, 0)
 	searchQueue = append(searchQueue, startName)
 	searchedMap := make(map[string]Node)
@@ -69,8 +69,8 @@ func main() {
 	releationMap["name E"] = []Node{Node{"name E", "name C", 30}, Node{"name E", "name F", 35}}
 	releationMap["name F"] = []Node{Node{"name F", "name D", 10}}
 
-	distance, path := Dijkstra(releationMap, "name A", "name D")
-	fmt.Println("Dijkstra search name D start from name A:", distance, "with path:", path)
+	distance, path := BellmanFord(releationMap, "name A", "name D")
+	fmt.Println("BellmanFord search name D start from name A:", distance, "with path:", path)
 }
 
 // Welcome to the playground!
@@ -80,4 +80,4 @@ func main() {
 // Debug add new node: name F {name B name F 25}
 // Debug add new node: name D {name C name D 40}
 // Debug searched record: map[name B:{name A name B 5} name C:{name B name C 20} name D:{name F name D 35} name E:{name A name E 0} name F:{name B name F 25}]
-// Dijkstra search name D start from name A: 35 with path: [name A name B name F name D]
+// BellmanFord search name D start from name A: 35 with path: [name A name B name F name D]
