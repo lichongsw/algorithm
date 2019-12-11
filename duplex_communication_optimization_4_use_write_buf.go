@@ -57,23 +57,13 @@ func writeLoop(conn *net.TCPConn, writeChanelQueue chan []byte) {
 			if atomic.LoadUint32(&lCount) > 0 && atomic.LoadUint32(&zCount) > 0 && multiCount > 0 {
 				_, err := conn.Write(bytes[:index])
 				if err != nil {
-					fmt.Println("last write err:", err)
+					fmt.Println("write err:", err)
 					return
 				}
 				multiCount = 0
 				index = 0
 			}
-			// default:
-			// 	if multiCount >= 1 {
-			// 		//fmt.Println("write multiCount:", multiCount, "data byte:", index)
-			// 		_, err := conn.Write(bytes[:index])
-			// 		if err != nil {
-			// 			fmt.Println("write err:", err)
-			// 			return
-			// 		}
-			// 		multiCount = 0
-			// 		index = 0
-			// 	}
+			time.Sleep(time.Microsecond * 10)
 		}
 	}
 }
