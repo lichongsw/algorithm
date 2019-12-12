@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"sync"
 	"sync/atomic"
@@ -63,7 +64,16 @@ func writeLoop(conn *net.TCPConn, writeChanelQueue chan []byte) {
 				multiCount = 0
 				index = 0
 			}
-			time.Sleep(time.Microsecond * 10)
+
+			switch runtime.GOOS {
+			case "darwin":
+			case "windows":
+			case "linux":
+				time.Sleep(time.Microsecond * 10)
+			default:
+				fmt.Println("unsupport os")
+			}
+
 		}
 	}
 }
