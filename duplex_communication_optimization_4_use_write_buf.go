@@ -205,7 +205,7 @@ func liDaYeListen(conn *net.TCPConn, wg *sync.WaitGroup, writeChanelQueue chan [
 		for _, r := range responses {
 			// fmt.Println("李大爷收到：" + r.Payload)
 			if r.Payload == z0 { // 如果收到：吃了没，您吶?
-				writeTo(&RequestResponse{r.Serial, l1}, conn, writeChanelQueue) // 回复：刚吃。
+				go writeTo(&RequestResponse{r.Serial, l1}, conn, writeChanelQueue) // 回复：刚吃。
 			} else if r.Payload == z3 {
 				// do nothing
 			} else if r.Payload == z5 {
