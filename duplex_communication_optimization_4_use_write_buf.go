@@ -65,15 +65,11 @@ func writeLoop(conn *net.TCPConn, writeChanelQueue chan []byte) {
 				index = 0
 			}
 
-			switch runtime.GOOS {
-			case "darwin":
-			case "windows":
-			case "linux":
-				time.Sleep(time.Microsecond * 10)
-			default:
-				fmt.Println("unsupport os")
-			}
-
+			// this write loop holds the system IO behavior, and we have two write loop for both direction
+			// if the CPU core is less then or equal to 2, the select always go through the default path
+			// and do nothing. This will definitely a waste of CPU resource. If this yeild is not added,
+			// the test reqult on 2 core is quite bad than the optimization 3.
+			runtime.Gosched()
 		}
 	}
 }
@@ -270,6 +266,8 @@ func startClient(wg *sync.WaitGroup) *net.TCPConn {
 }
 
 func main() {
+	runtime.GOMAXPROCS(2)
+
 	f, err := os.Create(`cpu.profile`)
 	if err != nil {
 		log.Fatal(err)
