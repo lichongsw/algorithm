@@ -7,14 +7,16 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"runtime/pprof"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
 var zRecvCount = uint32(0) // 张大爷听到了多少句话
 var lRecvCount = uint32(0) // 李大爷听到了多少句话
-var total = uint32(10000)  // 总共需要遇见多少次
+var total = uint32(100000) // 总共需要遇见多少次
 
 var z0 = "吃了没，您吶?"
 var z3 = "嗨！吃饱了溜溜弯儿。"
@@ -22,6 +24,9 @@ var z5 = "回头去给老太太请安！"
 var l1 = "刚吃。"
 var l2 = "您这，嘛去？"
 var l4 = "有空家里坐坐啊。"
+
+var zCount uint32 = 0
+var lCount uint32 = 0
 
 type RequestResponse struct {
 	Serial  uint32 // 序号
@@ -50,8 +55,7 @@ func writeLoop(conn *net.TCPConn, writeChanelQueue chan []byte) {
 			copy(bytes[index:], b)
 			index += len(b)
 		default:
-			if multiCount >= 1 {
-				//fmt.Println("write multiCount:", multiCount, "data byte:", index)
+			if atomic.LoadUint32(&lCount) > 0 && atomic.LoadUint32(&zCount) > 0 && multiCount > 0 {
 				_, err := conn.Write(bytes[:index])
 				if err != nil {
 					fmt.Println("write err:", err)
@@ -60,6 +64,12 @@ func writeLoop(conn *net.TCPConn, writeChanelQueue chan []byte) {
 				multiCount = 0
 				index = 0
 			}
+
+			// this write loop holds the system IO behavior, and we have two write loop for both direction
+			// if the CPU core is less then or equal to 2, the select always go through the default path
+			// and do nothing. This will definitely a waste of CPU resource. If this yeild is not added,
+			// the test reqult on 2 core is quite bad than the optimization 3.
+			runtime.Gosched()
 		}
 	}
 }
@@ -169,6 +179,8 @@ func zhangDaYeSay(conn *net.TCPConn, writeChanelQueue chan []byte) {
 		writeTo(&RequestResponse{nextSerial, z0}, conn, writeChanelQueue)
 		nextSerial++
 	}
+
+	atomic.AddUint32(&zCount, 1)
 }
 
 // 李大爷的耳朵，实现是和张大爷类似的
@@ -189,7 +201,7 @@ func liDaYeListen(conn *net.TCPConn, wg *sync.WaitGroup, writeChanelQueue chan [
 		for _, r := range responses {
 			// fmt.Println("李大爷收到：" + r.Payload)
 			if r.Payload == z0 { // 如果收到：吃了没，您吶?
-				writeTo(&RequestResponse{r.Serial, l1}, conn, writeChanelQueue) // 回复：刚吃。
+				go writeTo(&RequestResponse{r.Serial, l1}, conn, writeChanelQueue) // 回复：刚吃。
 			} else if r.Payload == z3 {
 				// do nothing
 			} else if r.Payload == z5 {
@@ -213,6 +225,8 @@ func liDaYeSay(conn *net.TCPConn, writeChanelQueue chan []byte) {
 		writeTo(&RequestResponse{nextSerial, l4}, conn, writeChanelQueue)
 		nextSerial++
 	}
+
+	atomic.AddUint32(&lCount, 1)
 }
 
 func startServer(wg *sync.WaitGroup) {
@@ -252,6 +266,8 @@ func startClient(wg *sync.WaitGroup) *net.TCPConn {
 }
 
 func main() {
+	runtime.GOMAXPROCS(2)
+
 	f, err := os.Create(`cpu.profile`)
 	if err != nil {
 		log.Fatal(err)
