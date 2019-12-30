@@ -132,6 +132,36 @@ func InOrderSlice(node *BinarytreeNode) (result []int) {
 	return result
 }
 
+func ReverseInOrderSlice(node *BinarytreeNode) (result []int) {
+	if node != nil {
+		result = append(result, ReverseInOrderSlice(node.Right)...)
+		result = append(result, node.Value)
+		result = append(result, ReverseInOrderSlice(node.Left)...)
+	}
+
+	return result
+}
+
+var count int = 0
+var nodeK *BinarytreeNode = nil
+func TOP_K(node *BinarytreeNode, k int) (result *BinarytreeNode) {
+	if node == nil || k<= 0 {
+		return nil
+	}
+
+	TOP_K(node.Right, k)
+	count++
+	if count == k {
+		nodeK = node
+	}
+
+	if count < k {
+		TOP_K(node.Left, k)
+	}
+
+	return nodeK
+}
+
 func PostOrderSlice(node *BinarytreeNode) (result []int) {
 	if node != nil {
 		result = append(result, PostOrderSlice(node.Left)...)
@@ -178,7 +208,12 @@ func main() {
 
 	fmt.Println("Pre order print: ", PreOrderSlice(rootNode))
 	fmt.Println("In order print: ", InOrderSlice(rootNode))
+	fmt.Println("ReverseIn order print: ", ReverseInOrderSlice(rootNode))
 	fmt.Println("Post order print: ", PostOrderSlice(rootNode))
+
+	k := 10
+	result := TOP_K(rootNode, k)
+	fmt.Println("TOP K: ", k, "node: ", result)
 
 	foundNode, parentNode := SearchNode(rootNode, 5)
 	fmt.Println("Search node result: ", foundNode.Value, ",parent node value", parentNode.Value)
